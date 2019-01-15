@@ -2,10 +2,12 @@ const express = require("express");
 const db = require("../data/dbConfig");
 const route = express.Router();
 
+const bearCheck = require("../common/bearCheck");
+
 route.get("/", async (req, res) => {
   try {
     const result = await db("bears");
-    if (result.length > 0) {
+    if (result.length) {
       res.json(result);
     }
     res.status(404).json({ message: `Data Not Found` });
@@ -18,7 +20,7 @@ route.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const result = await db("bears").where({ id });
-    if (result.length > 0) {
+    if (result.length) {
       res.json(result[0]);
     }
     res.status(404).json({ message: "Data Not Found" });
@@ -28,7 +30,6 @@ route.get("/:id", async (req, res) => {
 });
 
 route.post("/", async (req, res) => {
-  console.log("here");
   try {
     const result = await db("bears").insert(req.body);
     if (req.body.name.length > 0) {
@@ -45,8 +46,8 @@ route.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const check = await db("bears").where({ id });
-    if (check.length > 0) {
-      const result = await db("bears")
+    if (check.length) {
+      await db("bears")
         .where({ id })
         .del();
       res.status(202).json({ message: `Data has been deleted` });
@@ -63,13 +64,13 @@ route.put("/:id", async (req, res) => {
   const change = req.body;
   try {
     const check = await db("bears").where({ id });
-    if (check) {
-      const result = await db("bears")
+    if (check.length && change.length) {
+      await db("bears")
         .where({ id })
         .update(change);
       res.status(202).json({ message: "Data has been updated" });
     } else {
-      res.status(404).json({ message: "Data Not Found" });
+      res.status(400).json({ message: "Bad Request" });
     }
   } catch (err) {
     res.status(500).json({ message: "Internal Server Error" });
