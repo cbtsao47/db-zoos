@@ -2,7 +2,8 @@ const express = require("express");
 const db = require("../data/dbConfig");
 const route = express.Router();
 
-const bearCheck = require("../common/bearCheck");
+const postCheck = require("../common/postCheck");
+const deleteCheck = require("../common/deleteCheck");
 
 route.get("/", async (req, res) => {
   try {
@@ -29,31 +30,24 @@ route.get("/:id", async (req, res) => {
   }
 });
 
-route.post("/", async (req, res) => {
+route.post("/", postCheck, async (req, res) => {
   try {
     const result = await db("bears").insert(req.body);
-    if (req.body.name.length > 0) {
-      res.status(201).json({
-        message: `The data has been created with the id of ${result}`
-      });
-    }
-    res.status(406).json({ message: "Please include a name!" });
+    res.status(201).json({
+      message: `The data has been created with the id of ${result}`
+    });
   } catch (err) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-route.delete("/:id", async (req, res) => {
+
+route.delete("/:id", deleteCheck, async (req, res) => {
   const { id } = req.params;
   try {
-    const check = await db("bears").where({ id });
-    if (check.length) {
-      await db("bears")
-        .where({ id })
-        .del();
-      res.status(202).json({ message: `Data has been deleted` });
-    } else {
-      res.status(404).json({ message: "Data Not Found" });
-    }
+    await db("bears")
+      .where({ id })
+      .del();
+    res.status(202).json({ message: `Data has been deleted` });
   } catch (err) {
     res.status(500).json({ message: "Internal Server Error" });
   }

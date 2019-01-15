@@ -2,6 +2,8 @@ const express = require("express");
 const db = require("../data/dbConfig");
 const route = express.Router();
 
+const postCheck = require("../common/postCheck");
+
 route.get("/", async (req, res) => {
   try {
     const result = await db("zoos");
@@ -27,24 +29,22 @@ route.get("/:id", async (req, res) => {
   }
 });
 
-route.post("/", async (req, res) => {
+route.post("/", postCheck, async (req, res) => {
   try {
     const result = await db("zoos").insert(req.body);
-    if (req.body.name.length) {
-      res.status(201).json({
-        message: `The data has been created with the id of ${result}`
-      });
-    }
-    res.status(406).json({ message: "Please include a name!" });
+
+    res.status(201).json({
+      message: `The data has been created with the id of ${result}`
+    });
   } catch (err) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 route.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const check = await db("zoos").where({ id });
-    console.log(check, "hihi");
     if (check.length) {
       await db("zoos")
         .where({ id })
