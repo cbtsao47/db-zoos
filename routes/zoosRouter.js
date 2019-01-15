@@ -1,10 +1,6 @@
 const express = require("express");
-const knex = require("knex");
-
-const knexConfig = require("../knexfile");
+const db = require("../data/dbConfig");
 const route = express.Router();
-
-const db = knex(knexConfig.development);
 
 route.get("/", async (req, res) => {
   try {
