@@ -4,7 +4,7 @@ const route = express.Router();
 
 route.get("/", async (req, res) => {
   try {
-    const result = await db("zoos");
+    const result = await db("bears");
     if (result.length > 0) {
       res.json(result);
     }
@@ -17,7 +17,7 @@ route.get("/", async (req, res) => {
 route.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await db("zoos").where({ id });
+    const result = await db("bears").where({ id });
     if (result.length > 0) {
       res.json(result[0]);
     }
@@ -28,9 +28,10 @@ route.get("/:id", async (req, res) => {
 });
 
 route.post("/", async (req, res) => {
+  console.log("here");
   try {
-    const result = await db("zoos").insert(req.body);
-    if (result.name.length > 0) {
+    const result = await db("bears").insert(req.body);
+    if (req.body.name.length > 0) {
       res.status(201).json({
         message: `The data has been created with the id of ${result}`
       });
@@ -44,7 +45,7 @@ route.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const check = await db("bears").where({ id });
-    if (check) {
+    if (check.length > 0) {
       const result = await db("bears")
         .where({ id })
         .del();

@@ -30,7 +30,7 @@ route.get("/:id", async (req, res) => {
 route.post("/", async (req, res) => {
   try {
     const result = await db("zoos").insert(req.body);
-    if (result.name.length > 0) {
+    if (req.body.name.length > 0) {
       res.status(201).json({
         message: `The data has been created with the id of ${result}`
       });
@@ -44,7 +44,8 @@ route.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const check = await db("zoos").where({ id });
-    if (check) {
+    console.log(check, "hihi");
+    if (check.length > 0) {
       const result = await db("zoos")
         .where({ id })
         .del();
@@ -62,7 +63,7 @@ route.put("/:id", async (req, res) => {
   const change = req.body;
   try {
     const check = await db("zoos").where({ id });
-    if (check) {
+    if (check.length > 0) {
       const result = await db("zoos")
         .where({ id })
         .update(change);
